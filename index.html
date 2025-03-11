@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パラドックス罪状一覧 2025</title>
+    <style>
+        body {
+            font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .login-container {
+            width: 300px;
+            margin: 100px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .login-container input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .header {
+            background-color: #e6f2ff;
+            color: #333;
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+        }
+        
+        .main-container {
+            display: block;
+        }
+        
+        .criminal-code {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .criminal-code th {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .criminal-code td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        
+        .crime-category {
+            background-color: #b3d9ff;
+        }
+        
+        .fine-column {
+            background-color: #ffffcc;
+            width: 100px;
+            text-align: right;
+        }
+        
+        .punishment-column {
+            background-color: #ffcccc;
+            width: 100px;
+            text-align: center;
+        }
+        
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            display: none;
+        }
+        
+        .action-column {
+            width: 60px;
+            text-align: center;
+            display: none;
+        }
+        
+        .add-row-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            display: none;
+        }
+        
+        .save-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .login-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .edit-mode {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: none;
+        }
+        
+        .edit-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 80px;
+            display: none;
+        }
+        
+        .save-button, .logout-button, .toggle-html-button, .apply-html-button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .save-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .logout-button {
+            background-color: #f44336;
+            color: white;
+        }
+        
+        .toggle-html-button {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .apply-html-button {
+            background-color: #ff9800;
+            color: white;
+            display: none;
+        }
+        
+        .section-header {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        /* 編集モード時のみ表示するためのクラス */
+        .edit-mode-visible {
+            display: none;
+        }
+        
+        /* HTML編集エリア */
+        .html-editor {
+            width: 100%;
+            height: 600px;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            display: none;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div id="overlay" class="overlay"></div>
+    
+    <div id="login-section" class="login-container">
+        <h2>ログイン</h2>
+        <input type="text" id="username" placeholder="ユーザーID">
+        <input type="password" id="password" placeholder="パスワード">
+        <button id="login-button">ログイン</button>
+    </div>
+    
+    <div id="edit-mode" class="edit-mode">編集モード</div>
+    
+    <div id="main-section" class="main-container">
+        <div class="header">
+            <h1 id="title">パラドックス罪状一覧 2025 ver1.0.0</h1>
+            <button id="user-login-button" class="login-button">👤</button>
+        </div>
+        
+        <div id="all-content">
+            <!-- 罪状の統合テーブル -->
+            <table class="criminal-code">
+                <thead>
+                    <tr>
+                        <th width="20%">刑法</th>
+                        <th width="60%">説明</th>
+                        <th width="10%">罰金</th>
+                        <th width="10%">刑務時間</th>
+                        <th width="5%" class="edit-mode-visible">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="code-body"><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_b9588e96="true" data-listener-added_34068e92="true">銃刀法違反</td>
+                        <td contenteditable="true" data-listener-added_b9588e96="true" data-listener-added_34068e92="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">ガンライセンス無しでの銃器や刃物を所持して居た場合に当てはまる。</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">鈍器に関してはライセンスの有無に関わらず所有して良い。</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; font-weight: bold;">危険物および違法薬物は破棄しない限り、速やかに警察に届け出る必要がある。<br>白市民パス所持者が届け出た時、銃等の危険物の所持を希望する場合はシリアル登録を行う事。<br></span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">警察官は以下のものを強制で押収できる。</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; font-weight: bold;">押収対象品<br></span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・銃器＆近接武器、グレネードなどの危険な武器本体　</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; color: rgb(255, 0, 0);">銃刀法違反の場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※武器にパーツが付いてる場合はまとめて押収対象となる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※鈍器も警察側は危険物として押収してもよい</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; color: rgb(234, 67, 53);">※弾は含まれない</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・各種違法薬物の原材料になる植物（フラワー関係）</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; color: rgb(255, 0, 0);">違法薬物所持罪　</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・違法ドラック（罰金対象のドラッグすべて）&nbsp;</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; color: rgb(255, 0, 0);">違法薬物所持罪</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・手錠</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・ロックピック（ドア用、車用）</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><font face="Arial"><span style="text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・各大型の物</span></font></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">100,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">道路交通法違反</td>
+                        <td contenteditable="true" data-listener-added_b9588e96="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● スピード違反 一般道 120km以上 高速道路 150km以上</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 交通の妨げになる行為（車道の真ん中で長時間駐車や停車をしている等）</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 赤信号を徐行していない</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● ナンバープレートをステッカーで隠している</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● ノーパーキングエリアで駐車をしている車両</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 反対車線走行</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 走行中に信号などの設置物を破壊する</span><br></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">100,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">賭博罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">市に申請を出してない場所での賭博行為</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">現在の許可場（ カジノ ）</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">200,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">暴行罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">被害を訴えたプレイヤーがいる場合の過度な暴力行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">300,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">公務執行妨害</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">警察、救急隊の公務を妨害した場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">公務執行妨害罪の対象にする際は、公務執行妨害罪に当てはまる事を事前に伝えること</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; font-weight: bold;">公務執行妨害の例<br></span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 静止命令を無視する</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 公務員へ暴力を行う</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true">300,000円</td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">心なき市民殺人罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">明らかな悪意を持った上でNPCを殺害する行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">300,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">軽強盗罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">軽強盗に当てはまる強盗や犯罪で捕まった場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 車両窃盗（スポーツカー、スーパーカー以外）※テスト期間中は車種に限らず「車両窃盗罪」のみで切る事</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 空き巣</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● ハッキング行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">500,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">業務妨害罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">従業員スペースに侵入・大声を出す・店内にて暴れたりする行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">1,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">誘拐拉致監禁罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">プレイヤーを拘束し誘拐、拉致、監禁をする行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">1,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">強盗罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">以下に当てはまる窃盗・強盗で捕まった場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● コンビニ強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; text-decoration-line: line-through;">●</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">&nbsp;車両窃盗（スポーツカー、スーパーカー）</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 違法ダイビング</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● ブースティング</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="background-color: rgba(255, 242, 204, 0); font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap;"><br>1,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true">無</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">順重強盗罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">以下に当てはまる窃盗・強盗で捕まった場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● Fleeca銀行強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 航空機ハッキング強盗（チェイス不可 人質無効)</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● 宝石店強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● サーマイトミッション（チェイス不可 人質無効)</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">● パレト銀行強盗 ※テスト期間につき</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※こちらの罪は犯した時点でプリズン行き確定</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">2,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">30min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true" data-listener-added_9c6bb60d="true">プレイヤー殺人及び未遂</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">双方の同意がない状態でプレイヤーを殺害しダウンさせる行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">3,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">重強盗罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">以下に当てはまる窃盗・強盗で捕まった場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●ユニオンヘイスト</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●豪華客船強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●飛行場襲撃強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●オイルリグ強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●ダイアモンドカジノ強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●パシフィック銀行強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●アーティファクト強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●金庫強盗</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">●ブースティングA帯＆S帯</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">3,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">重窃盗罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">心ある市民の住宅もしくはトランク、インベントリなどから金品を窃盗する行為</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">心ある市民の車両を許可なく私的に利用する行為</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">3,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">収賄罪 / 汚職罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">公務員が現行犯の犯罪者やギャングから賄賂を受け取り、対象の有利になるように裏切りを働く行為</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">公務員が強盗や犯罪ミッションに加担した場合もこの罪状に当てはまる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; font-weight: bold;">対象の公務員</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">　救急隊&nbsp; &nbsp;警察</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">10,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">テロ罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">プレイヤーが働いている飲食店等に爆破や襲撃を行う行為</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">各店舗の関係者がギャングに対しての被害を感じた際は裁判を起こすことができる行為</span><br></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">100,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">警察署/病院襲撃罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">マップ上の警察もしくは病院関連の建物に対して行う強襲や破壊行為</span><br></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true">市の判断</td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">詐欺 / 脅迫罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">プレイヤーや団体を脅したり、騙したりして利益を得ようとする行為に該当</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">人質を偽装したり、人質がいないのに居ると伝えることも当てはまる</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">10,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">逃走補助罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">個人医や実行犯の仲間が犯罪現場で実行犯の逃走を補助したことが、証拠・及び目視で確認できた場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">個人医や実行犯ではない仲間が犯罪現場で"ダウンしてる"実行犯の逃走を補助したことが、証拠・及び目視で確認できた場合</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 18.6667px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">3,000,000円</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">30min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">違法薬物所持罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">使用については罪にならない</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">所持していた場合、その量に応じて罪になる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; font-weight: bold;">対象ドラッグ</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・ハッピーパウダー</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・スーパースター</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・メガロバニア</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・ハッピーフラワー</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・スターフラワー</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・メガロフラワー</span><br></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; font-weight: bold;">1〜4個　</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">200,000円罰金</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; font-weight: bold;">5〜9個</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">500,000円罰金</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; font-weight: bold;">10個〜</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">1,000,000円罰金</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; font-weight: bold;">100個～</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">2,000,000円罰金</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; font-weight: bold;">生成売買の現行犯</span><br style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">3,000,000円罰金</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">60min</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_34068e92="true">共犯罪</td>
+                        <td contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">罰金50万円以上の犯罪かつ証拠があり、協力していることが明らかな場合に同罪として処分される（個人医には当てはまらない）</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">上記以外は犯罪を実行した当事者のみが罰則される</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※お金をもらって人質になった場合も共犯罪になる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">自身の車両や持ってきた車両を現行犯に貸す行為は共犯とする</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">個人医や実行犯ではない仲間が犯罪現場で""ダウンしていない""実行犯の逃走を補助したことが、証拠・及び目視で確認できた場合。</span></td>
+                        <td class="fine-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 17.3333px; text-align: center; text-wrap-mode: nowrap; background-color: rgba(255, 242, 204, 0);">主犯と同じ罪状</span></td>
+                        <td class="punishment-column" contenteditable="true" data-listener-added_34068e92="true"><span style="font-family: Arial; font-size: 13.3333px; text-wrap-mode: nowrap; background-color: rgba(244, 204, 204, 0);">主犯と同じ</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr></tbody>
+            </table>
+
+            <!-- 法律の規定セクション - 別セクションとして維持 -->
+            <div class="section-header">法律の補足</div>
+            
+            <table class="criminal-code">
+                <thead>
+                    <tr>
+                        <th width="20%">項目</th>
+                        <th width="80%">説明</th>
+                        <th width="5%" class="edit-mode-visible">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="code-body4"><tr>
+                        <td class="crime-category" contenteditable="true">1</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">同じ罪状で罰金を重複して徴収してはならない</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">例：警察官を何人ダウンさせたとしても"プレイヤー殺人及び未遂"を複数適用させてはならない</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true">2</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">求刑は最も重い罪の収監時間を対象し、重複しない</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">3</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">罰金の合計金額が３００万円以上の犯罪を現行犯で取り締まれなかった場合</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">六法 の 指名手配 に記載してから 24時間&nbsp;</span><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">はその罪状で捕まえる事ができる</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true">4</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">警察は事件終息後に犯罪現場の付近にある容疑者の車および犯罪に使用されたであろう車両を押収することができる</span><br></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">5</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">警察官の採取した血液や薬莢はプレイヤーに対して提出できませんが、検出できたと報告することが確定証拠となる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">また、警察官の犯罪の目視も同じく確定証拠となる</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">6</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">警察は顔を半分以上隠している市民 / 名前を隠している市民に対して、強制的に職務質問を行うことができる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">➜　所持品確認命令、指紋と身元の確認等</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">➜　応じない場合は公務執行妨害となる</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※顔を隠していないプレイヤーに関しては、警察はタブレットで犯罪者の顔を把握してるので逮捕を行う事ができる</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">7</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">道路交通法違反による静止に応じず、逃走を図った場合は公務執行妨害となる</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">8</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">初犯の場合は罰金は合計金額から半額されます</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※これは同じプレイヤーの別キャラクターで犯罪を行った場合にも適用される</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">9</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・発砲してダウンまでもっていく→プレイヤー殺人及び未遂罪（罰金300万円）</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">・ダウンはさせなかったが、明らかに人に向けて発砲をする→暴行罪（罰金30万円）</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr><tr>
+                        <td class="crime-category" contenteditable="true" data-listener-added_9c6bb60d="true">10</td>
+                        <td contenteditable="true" data-listener-added_9c6bb60d="true"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">①指名手配犯の状態で捕まえた犯人はプリズン行き確定</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※時間に関しては犯した罪の内容を確認</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">②罰金のトータルが300万円以上場合はプリズン行き確定</span><br style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap;"><span style="font-family: Arial; font-size: 16px; text-wrap-mode: nowrap; background-color: rgba(243, 243, 243, 0);">※時間に関しては犯した罪の内容を確認</span></td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    </tr></tbody>
+            </table>
+        </div>
+        
+        <!-- HTML編集エリア -->
+        <textarea id="html-editor" class="html-editor"></textarea>
+        
+        <button id="add-row" class="add-row-button">新しい行を追加</button>
+        <button id="apply-html" class="apply-html-button">HTML適用</button>
+    </div>
+    
+    <div id="save-notification" class="save-notification">
+        変更が保存されました
+    </div>
+    
+    <div class="edit-buttons" id="edit-buttons">
+        <button class="save-button" id="save-button">保存</button>
+        <button class="toggle-html-button" id="toggle-html-button">HTML編集モード</button>
+        <button class="logout-button" id="logout-button">ログアウト</button>
+    </div>
+
+    <script>
+        let isLoggedIn = false;
+        let isHtmlMode = false;
+        
+        // ページ読み込み時に保存されたデータがあれば読み込む
+        window.addEventListener('DOMContentLoaded', function() {
+            loadAllContent();
+            // ページ読み込み時に編集モード関連の要素を非表示にする
+            hideEditModeElements();
+        });
+        
+        // 編集モード関連の要素を非表示にする関数
+        function hideEditModeElements() {
+            // 編集モード表示を非表示
+            document.getElementById('edit-mode').style.display = 'none';
+            
+            // 行追加ボタンを非表示
+            document.getElementById('add-row').style.display = 'none';
+            
+            // 編集ボタンを非表示
+            document.getElementById('edit-buttons').style.display = 'none';
+            
+            // 編集モード時のみ表示する要素を非表示
+            const editModeElements = document.querySelectorAll('.edit-mode-visible');
+            editModeElements.forEach(element => {
+                element.style.display = 'none';
+            });
+            
+            // 削除ボタンを非表示
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                button.style.display = 'none';
+            });
+            
+            // すべてのセルを編集不可に
+            disableEditMode();
+        }
+        
+        // Login button on top right corner
+        document.getElementById('user-login-button').addEventListener('click', function() {
+            document.getElementById('login-section').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+        
+        // Login functionality
+        document.getElementById('login-button').addEventListener('click', function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Check credentials (hardcoded for this example as requested)
+            if (username === 'aim' && password === '123123123') {
+                isLoggedIn = true;
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('overlay').style.display = 'none';
+                
+                // Enable editing mode
+                enableEditMode();
+                document.getElementById('edit-mode').style.display = 'block';
+                
+                // Show add row button and edit buttons
+                document.getElementById('add-row').style.display = 'block';
+                document.getElementById('edit-buttons').style.display = 'block';
+                
+                // Show edit-mode-visible elements
+                const editModeElements = document.querySelectorAll('.edit-mode-visible');
+                editModeElements.forEach(element => {
+                    element.style.display = 'table-cell';
+                });
+                
+                // Show delete buttons
+                const deleteButtons = document.querySelectorAll('.delete-button');
+                deleteButtons.forEach(button => {
+                    button.style.display = 'inline-block';
+                });
+            } else {
+                alert('ログイン情報が正しくありません。');
+            }
+        });
+        
+        // Close overlay when clicking outside the login box
+        document.getElementById('overlay').addEventListener('click', function() {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        });
+        
+        // Enable editing mode function
+        function enableEditMode() {
+            // Make title editable
+            document.getElementById('title').setAttribute('contenteditable', 'true');
+            
+            // Make all cells editable
+            const cells = document.querySelectorAll('td:not(.action-column)');
+            cells.forEach(cell => {
+                cell.setAttribute('contenteditable', 'true');
+            });
+        }
+        
+        // Add delete button functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-button')) {
+                if (confirm('この行を削除してもよろしいですか？')) {
+                    e.target.closest('tr').remove();
+                    saveAllContent(); // 削除したらすぐに保存
+                    showSaveNotification();
+                }
+            }
+        });
+        
+        // Add save button functionality
+        document.getElementById('save-button').addEventListener('click', function() {
+            saveAllContent();
+            showSaveNotification();
+            alert('変更が保存されました');
+        });
+        
+        // Toggle HTML edit mode
+        document.getElementById('toggle-html-button').addEventListener('click', function() {
+            isHtmlMode = !isHtmlMode;
+            
+            if (isHtmlMode) {
+                // Switch to HTML editing mode
+                document.getElementById('all-content').style.display = 'none';
+                document.getElementById('add-row').style.display = 'none';
+                document.getElementById('html-editor').style.display = 'block';
+                document.getElementById('apply-html').style.display = 'inline-block';
+                document.getElementById('toggle-html-button').textContent = 'テーブル編集モード';
+                
+                // Get the current HTML content and put it in the editor
+                const htmlContent = document.getElementById('all-content').innerHTML;
+                document.getElementById('html-editor').value = htmlContent;
+            } else {
+                // Switch back to table editing mode
+                document.getElementById('all-content').style.display = 'block';
+                document.getElementById('add-row').style.display = 'inline-block';
+                document.getElementById('html-editor').style.display = 'none';
+                document.getElementById('apply-html').style.display = 'none';
+                document.getElementById('toggle-html-button').textContent = 'HTML編集モード';
+            }
+        });
+        
+        // Apply HTML button functionality
+        document.getElementById('apply-html').addEventListener('click', function() {
+            try {
+                const htmlContent = document.getElementById('html-editor').value;
+                document.getElementById('all-content').innerHTML = htmlContent;
+                
+                // Re-enable edit mode for the new content
+                enableEditMode();
+                
+                // Show edit-mode-visible elements in the new content
+                const editModeElements = document.querySelectorAll('.edit-mode-visible');
+                editModeElements.forEach(element => {
+                    element.style.display = 'table-cell';
+                });
+                
+                // Show delete buttons in the new content
+                const deleteButtons = document.querySelectorAll('.delete-button');
+                deleteButtons.forEach(button => {
+                    button.style.display = 'inline-block';
+                });
+                
+                saveAllContent(); // HTMLを適用したらすぐに保存
+                showSaveNotification();
+                alert('HTMLが適用されました');
+            } catch (error) {
+                alert('HTMLの適用中にエラーが発生しました: ' + error.message);
+            }
+        });
+        
+        // Add logout button functionality
+        document.getElementById('logout-button').addEventListener('click', function() {
+            isLoggedIn = false;
+            isHtmlMode = false;
+            
+            // Switch back to table view if in HTML mode
+            document.getElementById('all-content').style.display = 'block';
+            document.getElementById('html-editor').style.display = 'none';
+            document.getElementById('apply-html').style.display = 'none';
+            document.getElementById('toggle-html-button').textContent = 'HTML編集モード';
+            
+            // 編集モード関連の要素を非表示にする
+            hideEditModeElements();
+            
+            alert('ログアウトしました');
+        });
+        
+        // Disable editing mode function
+        function disableEditMode() {
+            // Make title non-editable
+            document.getElementById('title').removeAttribute('contenteditable');
+            
+            // Make all cells non-editable
+            const cells = document.querySelectorAll('td');
+            cells.forEach(cell => {
+                cell.removeAttribute('contenteditable');
+            });
+        }
+        
+        // Add new row functionality
+        document.getElementById('add-row').addEventListener('click', function() {
+            // Check which table is visible/active
+            const lastSectionHeader = document.querySelector('.section-header:last-of-type');
+            
+            // If the last section is "法律の補足", add to that table
+            if (lastSectionHeader && lastSectionHeader.textContent === '法律の補足') {
+                const lawRulesTable = document.getElementById('code-body4');
+                const newRow = document.createElement('tr');
+                
+                newRow.innerHTML = `
+                    <td class="crime-category" contenteditable="true">新しい項目</td>
+                    <td contenteditable="true">説明を入力してください</td>
+                    <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                `;
+                
+                lawRulesTable.appendChild(newRow);
+            } else {
+                // Otherwise add to the main criminal code table
+                const criminalCodeTable = document.getElementById('code-body');
+                const newRow = document.createElement('tr');
+                
+                newRow.innerHTML = `
+                    <td class="crime-category" contenteditable="true">新しい罪名</td>
+                    <td contenteditable="true">説明を入力してください</td>
+                    <td class="fine-column" contenteditable="true">0円</td>
+                    <td class="punishment-column" contenteditable="true">無</td>
+                    <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                `;
+                
+                criminalCodeTable.appendChild(newRow);
+            }
+            
+            saveAllContent(); // 行を追加したらすぐに保存
+            showSaveNotification();
+        });
+        
+        // Show temporary save notification
+        function showSaveNotification() {
+            const notification = document.getElementById('save-notification');
+            notification.style.display = 'block';
+            
+            // Hide notification after 2 seconds
+            setTimeout(function() {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+        
+        // Add notification when content is edited
+        document.addEventListener('input', function(e) {
+            if (e.target.hasAttribute('contenteditable')) {
+                showSaveNotification();
+            }
+        });
+        
+        // Function to save all table data to localStorage
+        function saveAllContent() {
+            // Save the title
+            const title = document.getElementById('title').innerText;
+            localStorage.setItem('paradox_title', title);
+            
+            // Save all content HTML
+            const allContent = document.getElementById('all-content').innerHTML;
+            localStorage.setItem('paradox_all_content', allContent);
+            
+            // Save main criminal code table separately for backward compatibility
+            const mainTableRows = document.getElementById('code-body').rows;
+            const mainTableData = [];
+            
+            for (let i = 0; i < mainTableRows.length; i++) {
+                const row = mainTableRows[i];
+                const rowData = {
+                    category: row.cells[0].innerHTML,
+                    description: row.cells[1].innerHTML,
+                    fine: row.cells[2].innerHTML,
+                    punishment: row.cells[3].innerHTML
+                };
+                mainTableData.push(rowData);
+            }
+            
+            localStorage.setItem('paradox_main_table', JSON.stringify(mainTableData));
+            
+            // Save law rules table separately for backward compatibility
+            const lawTableRows = document.getElementById('code-body4').rows;
+            const lawTableData = [];
+            
+            for (let i = 0; i < lawTableRows.length; i++) {
+                const row = lawTableRows[i];
+                const rowData = {
+                    item: row.cells[0].innerHTML,
+                    description: row.cells[1].innerHTML
+                };
+                lawTableData.push(rowData);
+            }
+            
+            localStorage.setItem('paradox_law_table', JSON.stringify(lawTableData));
+        }
+        
+        // Function to load all saved data from localStorage
+        function loadAllContent() {
+            // Check if we have the full HTML content saved
+            const savedAllContent = localStorage.getItem('paradox_all_content');
+            if (savedAllContent) {
+                document.getElementById('all-content').innerHTML = savedAllContent;
+            } else {
+                // Otherwise load from the individual table data
+                loadTablesFromIndividualData();
+            }
+            
+            // Load title separately (as it's outside the all-content div)
+            const savedTitle = localStorage.getItem('paradox_title');
+            if (savedTitle) {
+                document.getElementById('title').innerText = savedTitle;
+            }
+        }
+        
+        // Function to load tables from individual data (for backward compatibility)
+        function loadTablesFromIndividualData() {
+            // Load main criminal code table
+            const savedMainTable = localStorage.getItem('paradox_main_table');
+            if (savedMainTable) {
+                const mainTableData = JSON.parse(savedMainTable);
+                const mainTableBody = document.getElementById('code-body');
+                
+                // Clear existing rows
+                mainTableBody.innerHTML = '';
+                
+                // Add saved rows
+                for (const rowData of mainTableData) {
+                    const newRow = document.createElement('tr');
+                    
+                    newRow.innerHTML = `
+                        <td class="crime-category">${rowData.category}</td>
+                        <td>${rowData.description}</td>
+                        <td class="fine-column">${rowData.fine}</td>
+                        <td class="punishment-column">${rowData.punishment}</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    `;
+                    
+                    mainTableBody.appendChild(newRow);
+                }
+            }
+            
+            // Load law rules table
+            const savedLawTable = localStorage.getItem('paradox_law_table');
+            if (savedLawTable) {
+                const lawTableData = JSON.parse(savedLawTable);
+                const lawTableBody = document.getElementById('code-body4');
+                
+                // Clear existing rows
+                lawTableBody.innerHTML = '';
+                
+                // Add saved rows
+                for (const rowData of lawTableData) {
+                    const newRow = document.createElement('tr');
+                    
+                    newRow.innerHTML = `
+                        <td class="crime-category">${rowData.item}</td>
+                        <td>${rowData.description}</td>
+                        <td class="action-column edit-mode-visible"><button class="delete-button">削除</button></td>
+                    `;
+                    
+                    lawTableBody.appendChild(newRow);
+                }
+            }
+        }
+        
+        // 自動保存機能を追加（編集後5秒間隔で保存）
+        let saveTimeout;
+        document.addEventListener('input', function(e) {
+            if (e.target.hasAttribute('contenteditable') || e.target.id === 'html-editor') {
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(function() {
+                    saveAllContent();
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
